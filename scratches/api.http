@@ -1,0 +1,47 @@
+
+POST http://localhost:9494/api/documents?description=hasan
+
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="1.txt"
+Content-Type: text/xml
+
+< ./1.txt
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="1.txt"
+Content-Type: text/xml
+
+< ./1.txt
+--boundary--
+
+###
+
+GET http://localhost:9494/api/documents/631e12f700828ac9ed032658
+
+###
+
+GET http://localhost:9494/api/documents
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ik9iamVjdElEKFwiNjMxZWY2MjNmNDdlNDkzNTc0OGI0NDI1XCIpIiwicm9sZSI6ImFkbWluIiwiYXVkIjoiaGFzYW5AaGFzYW4uY29tIiwiZXhwIjoxNjYzMjc3MjQ3LCJpc3MiOiJoYXNhbkBoYXNhbi5jb20ifQ.QK6SMx9jKdceM-wTF9fs0qSxGfjR48Hd5jcVEaPpfqo
+
+###
+
+POST http://localhost:9494/api/users
+content-type: application/json
+
+{
+  "password":"12345",
+  "email":"deneme1",
+  "role":"user"
+}
+
+###
+
+POST http://localhost:9494/api/users/login
+content-type: application/json
+
+{
+  "email":"hasan@mail.com",
+  "password":"12345"
+}
