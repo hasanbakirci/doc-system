@@ -6,8 +6,16 @@ package cmd
 
 import (
 	"fmt"
-
+	"github.com/hasanbakirci/doc-system/internal/auth"
+	"github.com/hasanbakirci/doc-system/internal/config"
+	"github.com/hasanbakirci/doc-system/internal/document"
+	"github.com/hasanbakirci/doc-system/pkg/graceful"
+	"github.com/hasanbakirci/doc-system/pkg/middleware"
+	"github.com/hasanbakirci/doc-system/pkg/mongoClient"
+	"github.com/hasanbakirci/doc-system/pkg/redisClient"
+	"github.com/labstack/echo/v4"
 	"github.com/spf13/cobra"
+	"time"
 )
 
 // apiCmd represents the api command
@@ -21,13 +29,51 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("api called")
+
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(apiCmd)
 
+	var port string
+	var cfgFile string
+	apiCmd.PersistentFlags().StringVarP(&port, "port", "p", "9494", "Restfull Service Port")
+	apiCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "config.dev", "config file (default is $HOME/.golang-api.yaml)")
+
+	ApiConfig, err := config.GetAllValues("./config/", cfgFile)
+	if err != nil {
+		panic(err)
+	}
+	apiCmd.Run = func(cmd *cobra.Command, args []string) {
+		instance := echo.New()
+
+		instance.Use(middleware.RecoveryMiddlewareFunc, middleware.LoggingMiddlewareFunc)
+
+		db, err := mongoClient.ConnectDb(ApiConfig.MongoSettings)
+		if err != nil {
+			fmt.Println("Db connection error")
+		}
+
+		redis := redisClient.NewRedisClient(ApiConfig.RedisSettings.Uri)
+
+		// document
+		documentRepository := document.NewDocumentRepository(db)
+		documentService := document.NewDocumentService(documentRepository, redis)
+		documentHandler := document.NewDocumentHandler(documentService)
+		document.RegisterDocumentHandlers(instance, documentHandler, ApiConfig.JwtSettings.SecretKey)
+		// auth
+		authRepository := auth.NewAuthRepository(db)
+		authService := auth.NewAuthService(authRepository, *ApiConfig)
+		authHandler := auth.NewUserHandler(authService)
+		auth.RegisterUserHandlers(instance, authHandler)
+
+		fmt.Println("Api starting")
+		if err := instance.Start(fmt.Sprintf(":%s", port)); err != nil {
+			fmt.Println("Api fatal error")
+		}
+		graceful.Shutdown(instance, time.Second*2)
+	}
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command

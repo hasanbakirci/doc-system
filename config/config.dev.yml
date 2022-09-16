@@ -4,3 +4,6 @@ mongoSettings:
 jwtSettings:
   sessionTime: 60
   secretKey: "869eaeb7-cc58-49c6-81ef-691f850bc1c3-d2173906-4d35-4c45-85fd-e7fce81bf12e"
+redisSettings:
+  channel: "doc-system"
+  uri: "localhost:6379"

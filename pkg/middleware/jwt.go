@@ -27,7 +27,7 @@ func TokenHandlerMiddlewareFunc(secret string, roles ...string) echo.MiddlewareF
 
 				if !handleRoles(roles, claims.Role) {
 					log.Error("The user's role is not equal to the expected role.")
-					return response.Error(c, http.StatusUnauthorized, "The user's role is not equal to the expected role.")
+					return response.Error(c, http.StatusForbidden, "The user's role is not equal to the expected role.")
 				}
 
 				c.Set("id", claims.ID)

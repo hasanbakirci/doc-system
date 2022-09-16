@@ -1,6 +1,7 @@
 package document
 
 import (
+	"fmt"
 	"github.com/hasanbakirci/doc-system/pkg/helpers"
 	"github.com/hasanbakirci/doc-system/pkg/middleware"
 	"github.com/hasanbakirci/doc-system/pkg/response"
@@ -14,14 +15,14 @@ type Handler struct {
 }
 
 func (h Handler) createDocument(c echo.Context) error {
+	uid := c.Get("id")
 	description := c.FormValue("description")
 	file, err := c.FormFile("file")
 	if err != nil {
 		//return c.JSON(http.StatusBadRequest, err)
 		return response.Error(c, http.StatusBadRequest, err.Error())
 	}
-	fileResult := helpers.AddFile(file)
-
+	fileResult := helpers.AddFile(file, "text/plain; charset=utf-8")
 	//if err := c.Bind(request); err != nil {
 	//	return c.JSON(http.StatusBadRequest, err.Error())
 	//}
@@ -31,7 +32,7 @@ func (h Handler) createDocument(c echo.Context) error {
 		Extension:   fileResult.Extension,
 		Path:        fileResult.Path,
 		MimeType:    fileResult.MimeType,
-	})
+	}, fmt.Sprintf("%v", uid))
 
 	if err != nil {
 		return response.Error(c, http.StatusBadRequest, err.Error())
@@ -112,7 +113,7 @@ func NewDocumentHandler(s Service) Handler {
 }
 
 func RegisterDocumentHandlers(instance *echo.Echo, h Handler, secret string) {
-	instance.POST("api/documents", h.createDocument)
+	instance.POST("api/documents", h.createDocument, middleware.TokenHandlerMiddlewareFunc(secret, "user", "admin"))
 	instance.PUT("api/documents/:id", h.updateDocument)
 	instance.DELETE("api/documents/:id", h.deleteDocument)
 	instance.GET("api/documents", h.getAllDocuments, middleware.TokenHandlerMiddlewareFunc(secret, "user", "admin"))

@@ -2,12 +2,14 @@ package document
 
 import (
 	"context"
+	"fmt"
+	"github.com/hasanbakirci/doc-system/pkg/redisClient"
 	"github.com/hasanbakirci/doc-system/pkg/response"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Service interface {
-	Create(ctx context.Context, request CreateDocumentRequest) (string, error)
+	Create(ctx context.Context, request CreateDocumentRequest, uid string) (string, error)
 	Update(ctx context.Context, id primitive.ObjectID, request UpdateDocumentRequest) (bool, error)
 	Delete(ctx context.Context, id primitive.ObjectID) (bool, error)
 	GetAll(ctx context.Context) ([]DocumentResponse, error)
@@ -16,14 +18,17 @@ type Service interface {
 
 type documentService struct {
 	repository Repository
+	redis      *redisClient.RedisClient
 }
 
-func (d documentService) Create(ctx context.Context, request CreateDocumentRequest) (string, error) {
+func (d documentService) Create(ctx context.Context, request CreateDocumentRequest, uid string) (string, error) {
 	document := request.ToDocument()
 	id, err := d.repository.Create(ctx, document)
 	if err != nil {
 		response.Panic(404, err.Error())
 	}
+
+	d.redis.Publish("doc-system", CreateDocumentLog(document, uid))
 	return id.String(), nil
 }
 
@@ -45,6 +50,7 @@ func (d documentService) Delete(ctx context.Context, id primitive.ObjectID) (boo
 }
 
 func (d documentService) GetAll(ctx context.Context) ([]DocumentResponse, error) {
+	fmt.Println("service ---> ", ctx.Value("id"))
 	documents, err := d.repository.GetAll(ctx)
 	if len(documents) < 1 {
 		response.Panic(404, err.Error())
@@ -66,6 +72,6 @@ func (d documentService) GetById(ctx context.Context, id primitive.ObjectID) (*D
 	return result, nil
 }
 
-func NewDocumentService(repo Repository) Service {
-	return &documentService{repository: repo}
+func NewDocumentService(repo Repository, redis *redisClient.RedisClient) Service {
+	return &documentService{repository: repo, redis: redis}
 }

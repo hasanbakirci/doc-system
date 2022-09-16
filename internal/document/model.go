@@ -92,3 +92,25 @@ func (d *Document) ToDocumentResponse() *DocumentResponse {
 		UpdatedAt:   d.UpdatedAt,
 	}
 }
+
+type DocumentLog struct {
+	DocumentId  string `json:"document_id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Extension   string `json:"extension"`
+	Path        string `json:"path"`
+	MimeType    string `json:"mime_type"`
+	UserId      string `json:"user_id"`
+}
+
+func CreateDocumentLog(doc *Document, uid string) *DocumentLog {
+	return &DocumentLog{
+		DocumentId:  doc.ID.String(),
+		Name:        doc.Name,
+		Description: doc.Description,
+		Extension:   doc.Extension,
+		Path:        doc.Path,
+		MimeType:    doc.MimeType,
+		UserId:      uid,
+	}
+}

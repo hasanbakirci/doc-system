@@ -13,6 +13,7 @@ var (
 type Configuration struct {
 	MongoSettings MongoSettings
 	JwtSettings   JwtSettings
+	RedisSettings RedisSettings
 }
 
 type MongoSettings struct {
@@ -24,6 +25,11 @@ type MongoSettings struct {
 type JwtSettings struct {
 	SessionTime int
 	SecretKey   string
+}
+
+type RedisSettings struct {
+	Channel string
+	Uri     string
 }
 
 type configReader struct {

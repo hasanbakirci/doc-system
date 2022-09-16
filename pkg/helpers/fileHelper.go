@@ -20,7 +20,7 @@ type FileResponse struct {
 	MimeType   string
 }
 
-func AddFile(file *multipart.FileHeader) *FileResponse {
+func AddFile(file *multipart.FileHeader, types ...string) *FileResponse {
 
 	src, err := file.Open()
 	if err != nil {
@@ -35,6 +35,9 @@ func AddFile(file *multipart.FileHeader) *FileResponse {
 	}
 
 	mt := mimetype.Detect(fileByte)
+	if !handleMimeType(types, mt.String()) {
+		response.Panic(http.StatusBadRequest, "wrong file format")
+	}
 	fileRename := fmt.Sprintf(uuid.New().String() + "-" + time.Now().Format("2006-01-02-15-04-05"))
 	path := "upload/" + fileRename + mt.Extension()
 
@@ -53,4 +56,13 @@ func AddFile(file *multipart.FileHeader) *FileResponse {
 		Extension:  mt.Extension(),
 		MimeType:   mt.String(),
 	}
+}
+
+func handleMimeType(types []string, mime string) bool {
+	for _, r := range types {
+		if r == mime {
+			return true
+		}
+	}
+	return false
 }

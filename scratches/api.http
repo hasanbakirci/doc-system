@@ -1,19 +1,19 @@
 
-POST http://localhost:9494/api/documents?description=hasan
-
+POST http://localhost:9494/api/documents?description=rdeneme2
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ik9iamVjdElEKFwiNjMxZWY2MjNmNDdlNDkzNTc0OGI0NDI1XCIpIiwicm9sZSI6ImFkbWluIiwiYXVkIjoiaGFzYW5AaGFzYW4uY29tIiwiZXhwIjoxNjYzMjc3MjQ3LCJpc3MiOiJoYXNhbkBoYXNhbi5jb20ifQ.QK6SMx9jKdceM-wTF9fs0qSxGfjR48Hd5jcVEaPpfqo
 Content-Type: multipart/form-data; boundary=boundary
 
 --boundary
 Content-Disposition: form-data; name="file"; filename="1.txt"
 Content-Type: text/xml
 
-< ./1.txt
+< 1.txt
 
 --boundary
 Content-Disposition: form-data; name="file"; filename="1.txt"
 Content-Type: text/xml
 
-< ./1.txt
+< 1.txt
 --boundary--
 
 ###
