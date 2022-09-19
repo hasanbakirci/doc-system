@@ -2,8 +2,8 @@ package queues
 
 import (
 	"context"
+	"github.com/hasanbakirci/doc-system/pkg/errorHandler"
 	"github.com/hasanbakirci/doc-system/pkg/redisClient"
-	"github.com/hasanbakirci/doc-system/pkg/response"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -20,7 +20,7 @@ func (redis CreatedConsumer) Consume(channel string) {
 	for {
 		msg, err := subs.ReceiveMessage(context.Background())
 		if err != nil {
-			response.Panic(400, err.Error())
+			errorHandler.Panic(400, err.Error())
 		}
 		redis.redisClient.Set("doc-system:created-log", msg.Payload)
 		log.Info(msg.Channel, msg.Payload)

@@ -1,4 +1,4 @@
-package response
+package errorHandler
 
 import "github.com/labstack/echo/v4"
 
@@ -14,7 +14,7 @@ type SuccessDetails struct {
 }
 
 func Panic(statusCode int, message string) {
-	panic(&ErrorDetails{
+	panic(ErrorDetails{
 		StatusCode: statusCode,
 		Message:    message,
 	})

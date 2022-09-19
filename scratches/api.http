@@ -1,6 +1,54 @@
+# User Api #
+# Create #
+POST http://localhost:9494/api/users
+content-type: application/json
 
-POST http://localhost:9494/api/documents?description=rdeneme2
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ik9iamVjdElEKFwiNjMxZWY2MjNmNDdlNDkzNTc0OGI0NDI1XCIpIiwicm9sZSI6ImFkbWluIiwiYXVkIjoiaGFzYW5AaGFzYW4uY29tIiwiZXhwIjoxNjYzMjc3MjQ3LCJpc3MiOiJoYXNhbkBoYXNhbi5jb20ifQ.QK6SMx9jKdceM-wTF9fs0qSxGfjR48Hd5jcVEaPpfqo
+{
+  "username":"admin",
+  "password":"12345",
+  "email":"admin@admin.com",
+  "role":"admin"
+}
+
+# Update #
+
+PUT http://localhost:9494/api/users/0c778ef5-1f9a-4f7f-bc34-68610524292b
+content-type: application/json
+
+{
+  "username":"admin",
+  "password":"12345",
+  "email":"admin1@admin.com",
+  "role":"admin"
+}
+
+# Delete #
+
+DELETE  http://localhost:9494/api/users/3352aa90-f477-4043-be88-2e3a63ab0d88
+
+# Get All #
+
+GET http://localhost:9494/api/users
+
+# Get By Id #
+
+GET http://localhost:9494/api/users/61c9c2db-e79b-4a84-80cb-1a4126757d20
+
+# Login #
+
+POST http://localhost:9494/api/users/login
+content-type: application/json
+
+{
+  "email":"admin@admin.com",
+  "password":"12345"
+}
+
+# Document Api #
+# Create #
+
+POST http://localhost:9494/api/documents?description=deneme1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ik9iamVjdElEKFwiNjMxZWY2MjNmNDdlNDkzNTc0OGI0NDI1XCIpIiwicm9sZSI6ImFkbWluIiwiYXVkIjoiaGFzYW5AaGFzYW4uY29tIiwiZXhwIjoxNjYzNTMzMDIzLCJpc3MiOiJoYXNhbkBoYXNhbi5jb20ifQ.yWQBzBOoLimtSqjoGcNZipCZrosxOYz1AkJ2ozQYX8E
 Content-Type: multipart/form-data; boundary=boundary
 
 --boundary
@@ -16,32 +64,35 @@ Content-Type: text/xml
 < 1.txt
 --boundary--
 
-###
+# Update #
 
-GET http://localhost:9494/api/documents/631e12f700828ac9ed032658
+PUT http://localhost:9494/api/documents/74964b04-a030-470a-9aef-52fe958a1aec?description=deneme1update1
+Content-Type: multipart/form-data; boundary=boundary
 
-###
+--boundary
+Content-Disposition: form-data; name="file"; filename="1.txt"
+Content-Type: text/xml
+
+< 1.txt
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="1.txt"
+Content-Type: text/xml
+
+< 1.txt
+--boundary--
+
+# Delete #
+
+DELETE  http://localhost:9494/api/documents/3352aa90-f477-4043-be88-2e3a63ab0d88
+
+# Get All #
 
 GET http://localhost:9494/api/documents
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ik9iamVjdElEKFwiNjMxZWY2MjNmNDdlNDkzNTc0OGI0NDI1XCIpIiwicm9sZSI6ImFkbWluIiwiYXVkIjoiaGFzYW5AaGFzYW4uY29tIiwiZXhwIjoxNjYzMjc3MjQ3LCJpc3MiOiJoYXNhbkBoYXNhbi5jb20ifQ.QK6SMx9jKdceM-wTF9fs0qSxGfjR48Hd5jcVEaPpfqo
+
+# Get By Id #
+
+GET http://localhost:9494/api/documents/a48136c3-b080-4842-a163-9b99ecf695bf
 
 ###
 
-POST http://localhost:9494/api/users
-content-type: application/json
-
-{
-  "password":"12345",
-  "email":"deneme1",
-  "role":"user"
-}
-
-###
-
-POST http://localhost:9494/api/users/login
-content-type: application/json
-
-{
-  "email":"hasan@mail.com",
-  "password":"12345"
-}

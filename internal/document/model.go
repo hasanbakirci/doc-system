@@ -1,24 +1,25 @@
 package document
 
 import (
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Document struct {
-	ID          primitive.ObjectID `bson:"_id"`
-	Name        string             `bson:"name"`
-	Description string             `bson:"description"`
-	Extension   string             `bson:"extension"`
-	Path        string             `bson:"path"`
-	MimeType    string             `bson:"mime_type"`
-	CreatedAt   string             `bson:"created_at"`
-	UpdatedAt   string             `bson:"updated_at"`
+	ID          string `bson:"_id"`
+	Name        string `bson:"name"`
+	Description string `bson:"description"`
+	Extension   string `bson:"extension"`
+	Path        string `bson:"path"`
+	MimeType    string `bson:"mime_type"`
+	CreatedAt   string `bson:"created_at"`
+	UpdatedAt   string `bson:"updated_at"`
 }
 
 func (d *Document) Create() (*Document, error) {
 	return &Document{
-		ID:          primitive.NewObjectID(),
+		ID:          uuid.New().String(),
 		Name:        d.Name,
 		Description: d.Description,
 		Extension:   d.Extension,
@@ -39,7 +40,7 @@ type CreateDocumentRequest struct {
 
 func (receiver *CreateDocumentRequest) ToDocument() *Document {
 	return &Document{
-		ID:          primitive.NewObjectID(),
+		ID:          uuid.New().String(),
 		Name:        receiver.Name,
 		Description: receiver.Description,
 		Extension:   receiver.Extension,
@@ -82,7 +83,7 @@ type DocumentResponse struct {
 
 func (d *Document) ToDocumentResponse() *DocumentResponse {
 	return &DocumentResponse{
-		ID:          d.ID.String(),
+		ID:          d.ID,
 		Name:        d.Name,
 		Description: d.Description,
 		Extension:   d.Extension,
@@ -105,7 +106,7 @@ type DocumentLog struct {
 
 func CreateDocumentLog(doc *Document, uid string) *DocumentLog {
 	return &DocumentLog{
-		DocumentId:  doc.ID.String(),
+		DocumentId:  doc.ID,
 		Name:        doc.Name,
 		Description: doc.Description,
 		Extension:   doc.Extension,

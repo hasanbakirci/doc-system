@@ -2,12 +2,12 @@ package document
 
 import (
 	"fmt"
+	"net/http"
+
+	"github.com/hasanbakirci/doc-system/pkg/errorHandler"
 	"github.com/hasanbakirci/doc-system/pkg/helpers"
 	"github.com/hasanbakirci/doc-system/pkg/middleware"
-	"github.com/hasanbakirci/doc-system/pkg/response"
 	"github.com/labstack/echo/v4"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"net/http"
 )
 
 type Handler struct {
@@ -20,7 +20,7 @@ func (h Handler) createDocument(c echo.Context) error {
 	file, err := c.FormFile("file")
 	if err != nil {
 		//return c.JSON(http.StatusBadRequest, err)
-		return response.Error(c, http.StatusBadRequest, err.Error())
+		return errorHandler.Error(c, http.StatusBadRequest, err.Error())
 	}
 	fileResult := helpers.AddFile(file, "text/plain; charset=utf-8")
 	//if err := c.Bind(request); err != nil {
@@ -35,19 +35,15 @@ func (h Handler) createDocument(c echo.Context) error {
 	}, fmt.Sprintf("%v", uid))
 
 	if err != nil {
-		return response.Error(c, http.StatusBadRequest, err.Error())
+		return errorHandler.Error(c, http.StatusBadRequest, err.Error())
 	}
 	//return c.JSON(http.StatusCreated, result)
-	return response.Success(c, http.StatusCreated, result, "Success")
+	return errorHandler.Success(c, http.StatusCreated, result, "Success")
 }
 
 func (h Handler) updateDocument(c echo.Context) error {
 	description := c.FormValue("description")
-	value := c.Param("id")
-	id, err := primitive.ObjectIDFromHex(value)
-	if err != nil {
-		return response.Error(c, http.StatusBadRequest, err.Error())
-	}
+	id := c.Param("id")
 
 	//request := new(UpdateDocumentRequest)
 	//if err := c.Bind(request); err != nil {
@@ -55,9 +51,9 @@ func (h Handler) updateDocument(c echo.Context) error {
 	//}
 	file, err := c.FormFile("file")
 	if err != nil {
-		return response.Error(c, http.StatusBadRequest, err.Error())
+		return errorHandler.Error(c, http.StatusBadRequest, err.Error())
 	}
-	fileResult := helpers.AddFile(file)
+	fileResult := helpers.AddFile(file, "text/plain; charset=utf-8")
 
 	result, err := h.service.Update(c.Request().Context(), id, UpdateDocumentRequest{
 		Name:        fileResult.FileName,
@@ -67,46 +63,38 @@ func (h Handler) updateDocument(c echo.Context) error {
 		MimeType:    fileResult.MimeType,
 	})
 	if !result {
-		return response.Error(c, http.StatusBadRequest, err.Error())
+		return errorHandler.Error(c, http.StatusBadRequest, err.Error())
 	}
-	return response.Success(c, http.StatusOK, result, "Success")
+	return errorHandler.Success(c, http.StatusOK, result, "Success")
 }
 
 func (h Handler) deleteDocument(c echo.Context) error {
-	value := c.Param("id")
-	id, err := primitive.ObjectIDFromHex(value)
-	if err != nil {
-		return response.Error(c, http.StatusBadRequest, err.Error())
-	}
+	id := c.Param("id")
 
 	result, err := h.service.Delete(c.Request().Context(), id)
 	if !result {
-		return response.Error(c, http.StatusBadRequest, err.Error())
+		return errorHandler.Error(c, http.StatusBadRequest, err.Error())
 	}
-	return response.Success(c, http.StatusOK, result, "Success")
+	return errorHandler.Success(c, http.StatusOK, result, "Success")
 }
 
 func (h Handler) getAllDocuments(c echo.Context) error {
 	documents, err := h.service.GetAll(c.Request().Context())
 	if err != nil {
 		//return c.JSON(http.StatusNotFound, err)
-		return response.Error(c, http.StatusNotFound, err.Error())
+		return errorHandler.Error(c, http.StatusNotFound, err.Error())
 	}
-	return response.Success(c, http.StatusOK, documents, "Success")
+	return errorHandler.Success(c, http.StatusOK, documents, "Success")
 }
 
 func (h Handler) getByIdDocument(c echo.Context) error {
-	value := c.Param("id")
-	id, err := primitive.ObjectIDFromHex(value)
-	if err != nil {
-		return response.Error(c, http.StatusBadRequest, err.Error())
-	}
+	id := c.Param("id")
 
 	document, err := h.service.GetById(c.Request().Context(), id)
 	if err != nil {
-		return response.Error(c, http.StatusBadRequest, err.Error())
+		return errorHandler.Error(c, http.StatusBadRequest, err.Error())
 	}
-	return response.Success(c, http.StatusOK, document, "Success")
+	return errorHandler.Success(c, http.StatusOK, document, "Success")
 }
 func NewDocumentHandler(s Service) Handler {
 	return Handler{service: s}

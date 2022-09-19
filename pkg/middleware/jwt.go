@@ -1,8 +1,8 @@
 package middleware
 
 import (
+	"github.com/hasanbakirci/doc-system/pkg/errorHandler"
 	"github.com/hasanbakirci/doc-system/pkg/helpers"
-	"github.com/hasanbakirci/doc-system/pkg/response"
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -17,17 +17,17 @@ func TokenHandlerMiddlewareFunc(secret string, roles ...string) echo.MiddlewareF
 				token := strings.Split(c.Request().Header.Get("Authorization"), " ")
 				if token[0] != "Bearer" {
 					log.Error("Authorization type is not Bearer.")
-					return response.Error(c, http.StatusUnauthorized, "Authorization type is not Bearer.")
+					return errorHandler.Error(c, http.StatusUnauthorized, "Authorization type is not Bearer.")
 				}
 				claims := helpers.VerifyToken(token[1], secret)
 				if claims == nil {
 					log.Error("The token is not correct.")
-					return response.Error(c, http.StatusUnauthorized, "The token is not correct.")
+					return errorHandler.Error(c, http.StatusUnauthorized, "The token is not correct.")
 				}
 
 				if !handleRoles(roles, claims.Role) {
 					log.Error("The user's role is not equal to the expected role.")
-					return response.Error(c, http.StatusForbidden, "The user's role is not equal to the expected role.")
+					return errorHandler.Error(c, http.StatusForbidden, "The user's role is not equal to the expected role.")
 				}
 
 				c.Set("id", claims.ID)
@@ -35,7 +35,7 @@ func TokenHandlerMiddlewareFunc(secret string, roles ...string) echo.MiddlewareF
 				return next(c)
 			}
 			log.Error("Authorization header is empty.")
-			return response.Error(c, http.StatusUnauthorized, "Authorization header is empty.")
+			return errorHandler.Error(c, http.StatusUnauthorized, "Authorization header is empty.")
 		}
 	}
 }

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/golang-jwt/jwt"
 	"github.com/hasanbakirci/doc-system/internal/config"
-	"github.com/hasanbakirci/doc-system/pkg/response"
+	"github.com/hasanbakirci/doc-system/pkg/errorHandler"
 	"github.com/labstack/gommon/log"
 	"net/http"
 	"time"
@@ -34,7 +34,7 @@ func GenerateJwtToken(id, role string, cfg config.JwtSettings) string {
 	tokenString, err := token.SignedString(secretKey)
 	if err != nil {
 		log.Error("Couldn't get signed token : %v", err)
-		response.Panic(http.StatusBadRequest, fmt.Sprintf("Couldn't get signed token : %v", err))
+		errorHandler.Panic(http.StatusBadRequest, fmt.Sprintf("Couldn't get signed token : %v", err))
 	}
 
 	log.Info("The token was successfully generated.")
@@ -47,24 +47,24 @@ func VerifyToken(token string, secret string) *UserClaim {
 	decodedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			//return nil, fmt.Errorf("There was an error in parsing")
-			response.Panic(http.StatusBadRequest, "There was an error in parsing")
+			errorHandler.Panic(http.StatusBadRequest, "There was an error in parsing")
 		}
 		return secretKey, nil
 	})
 
 	if err != nil {
 		log.Error("Jwt token parse error : %v", err)
-		response.Panic(http.StatusUnauthorized, fmt.Sprintf("Jwt token parse error : %v", err))
+		errorHandler.Panic(http.StatusUnauthorized, fmt.Sprintf("Jwt token parse error : %v", err))
 	}
 	if !decodedToken.Valid {
 		log.Error("Jwt token not valid ")
-		response.Panic(http.StatusUnauthorized, "Jwt token not valid")
+		errorHandler.Panic(http.StatusUnauthorized, "Jwt token not valid")
 	}
 
 	claims, ok := decodedToken.Claims.(jwt.MapClaims)
 	if !ok {
 		log.Error("Claims not found")
-		response.Panic(http.StatusUnauthorized, "Claims not found")
+		errorHandler.Panic(http.StatusUnauthorized, "Claims not found")
 	}
 
 	userClaims := new(UserClaim)

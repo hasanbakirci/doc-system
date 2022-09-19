@@ -6,16 +6,17 @@ package cmd
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/hasanbakirci/doc-system/internal/auth"
 	"github.com/hasanbakirci/doc-system/internal/config"
 	"github.com/hasanbakirci/doc-system/internal/document"
+	elasticclient "github.com/hasanbakirci/doc-system/pkg/elasticClient"
 	"github.com/hasanbakirci/doc-system/pkg/graceful"
 	"github.com/hasanbakirci/doc-system/pkg/middleware"
-	"github.com/hasanbakirci/doc-system/pkg/mongoClient"
 	"github.com/hasanbakirci/doc-system/pkg/redisClient"
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/cobra"
-	"time"
 )
 
 // apiCmd represents the api command
@@ -50,20 +51,27 @@ func init() {
 
 		instance.Use(middleware.RecoveryMiddlewareFunc, middleware.LoggingMiddlewareFunc)
 
-		db, err := mongoClient.ConnectDb(ApiConfig.MongoSettings)
-		if err != nil {
-			fmt.Println("Db connection error")
-		}
+		// db, err := mongoClient.ConnectDb(ApiConfig.MongoSettings)
+		// if err != nil {
+		// 	fmt.Println("Db connection error")
+		// }
 
 		redis := redisClient.NewRedisClient(ApiConfig.RedisSettings.Uri)
 
+		elastic, err := elasticclient.ConnectElastic()
+
+		if err != nil {
+			fmt.Println("Elastic connection error")
+		}
 		// document
-		documentRepository := document.NewDocumentRepository(db)
+		//documentRepository := document.NewDocumentRepository(db)
+		documentRepository := document.NewElasticRepository(elastic)
 		documentService := document.NewDocumentService(documentRepository, redis)
 		documentHandler := document.NewDocumentHandler(documentService)
 		document.RegisterDocumentHandlers(instance, documentHandler, ApiConfig.JwtSettings.SecretKey)
 		// auth
-		authRepository := auth.NewAuthRepository(db)
+		//authRepository := auth.NewAuthRepository(db)
+		authRepository := auth.NewElasticRepository(elastic)
 		authService := auth.NewAuthService(authRepository, *ApiConfig)
 		authHandler := auth.NewUserHandler(authService)
 		auth.RegisterUserHandlers(instance, authHandler)

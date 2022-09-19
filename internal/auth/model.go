@@ -1,20 +1,21 @@
 package auth
 
 import (
-	"github.com/labstack/gommon/log"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"golang.org/x/crypto/bcrypt"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/labstack/gommon/log"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
-	ID        primitive.ObjectID `bson:"_id"`
-	Username  string             `bson:"username"`
-	Password  string             `bson:"password"`
-	Email     string             `bson:"email"`
-	Role      string             `bson:"role"`
-	CreatedAt string             `bson:"created_at"`
-	UpdatedAt string             `bson:"updated_at"`
+	ID        string `bson:"_id"`
+	Username  string `bson:"username"`
+	Password  string `bson:"password"`
+	Email     string `bson:"email"`
+	Role      string `bson:"role"`
+	CreatedAt string `bson:"created_at"`
+	UpdatedAt string `bson:"updated_at"`
 }
 
 type CreateUserRequest struct {
@@ -32,13 +33,13 @@ type UpdateUserRequest struct {
 }
 
 type UserResponse struct {
-	ID        primitive.ObjectID `json:"id"`
-	Username  string             `json:"username"`
-	Password  string             `json:"password"`
-	Email     string             `json:"email"`
-	Role      string             `json:"role"`
-	CreatedAt string             `json:"created_at"`
-	UpdatedAt string             `json:"updated_at"`
+	ID        string `json:"id"`
+	Username  string `json:"username"`
+	Password  string `json:"password"`
+	Email     string `json:"email"`
+	Role      string `json:"role"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
 }
 
 type LoginUserRequest struct {
@@ -46,9 +47,21 @@ type LoginUserRequest struct {
 	Password string `json:"password"`
 }
 
+func (receiver *User) Create() *User {
+	return &User{
+		ID:        uuid.New().String(),
+		Username:  receiver.Username,
+		Password:  receiver.Password,
+		Email:     receiver.Email,
+		Role:      receiver.Role,
+		CreatedAt: time.Now().Format("2006-01-02-15-04-05"),
+		UpdatedAt: time.Now().Format("2006-01-02-15-04-05"),
+	}
+}
+
 func (receiver *CreateUserRequest) ToUser() *User {
 	return &User{
-		ID:        primitive.NewObjectID(),
+		ID:        uuid.New().String(),
 		Username:  receiver.Username,
 		Password:  receiver.Password,
 		Email:     receiver.Email,
